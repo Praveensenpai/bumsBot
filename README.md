@@ -13,7 +13,16 @@ BumsBot is an automated bot for daily sign-ins, tapping, and handling upgrades o
 
 ## Setup
 
-### 1. Install `uv` Package Manager
+### 1. Clone the Repository
+
+To clone the repository, run:
+
+```bash
+git clone https://github.com/Praveensenpai/bumsBot.git
+cd bumsBot
+```
+
+### 2. Install `uv` Package Manager
 
 Windows:
 
@@ -27,13 +36,13 @@ Linux/macOS:
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-### 2. Sync Environment with `uv`
+### 3. Sync Environment with `uv`
 
 ```bash
 uv sync --python 3.13
 ```
 
-### 3. Run the Bot
+### 4. Run the Bot
 
 ```bash
 uv run main.py
