@@ -24,13 +24,13 @@ cd bumsBot
 
 ### 2. Install `uv` Package Manager
 
-Windows:
+**Windows:**
 
 ```powershell
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-Linux/macOS:
+**Linux/macOS:**
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -71,6 +71,26 @@ SLEEP_DELAY_MINUTES=30  # Adjust the delay as needed
 | `SESSION_NAME`        | Session name, set to **bums**   |
 | `PHONE`               | Your phone number               |
 | `SLEEP_DELAY_MINUTES` | Delay between tasks, in minutes |
+
+---
+
+## Getting Your Telegram API ID and Hash
+
+To obtain the **API ID** and **API Hash** for Telegram, follow these steps:
+
+1. **Log in to Telegram**: Use the official [Telegram Web](https://web.telegram.org/) or app to log in to your account.
+
+2. **Access the Telegram Developer Portal**:
+   - Go to [https://my.telegram.org](https://my.telegram.org) and sign in with your Telegram credentials.
+
+3. **Create a New Application**:
+   - After logging in, click on **API Development Tools**.
+   - Choose **Create new application** and fill in the required details, like the app name, platform (e.g., Desktop), and a short description.
+
+4. **Get Your API ID and Hash**:
+   - Once you complete the form, Telegram will provide you with an **API ID** and **API Hash**. Copy these and paste them into your `.env` file for BumsBot.
+
+These credentials allow your bot to interact with Telegram. Keep them secure and avoid sharing them publicly.
 
 ---
 
