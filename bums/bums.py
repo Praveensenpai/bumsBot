@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from typing import Optional, List
 import httpx
 import humanize
@@ -34,8 +35,10 @@ class Bums:
             logger.error(
                 f"Request to {url} failed with status {e.response.status_code}"
             )
+            logger.error(traceback.print_exc())
         except Exception as e:
             logger.error(f"Request to {url} failed: {str(e)}")
+            logger.error(traceback.print_exc())
 
     async def _get(self, url: str) -> Optional[httpx.Response]:
         try:
@@ -46,7 +49,7 @@ class Bums:
             )
         except Exception as e:
             logger.error(f"GET request to {url} failed: {str(e)}")
-        return None
+            logger.error(traceback.print_exc())
 
     def _generate_md5_hash(self, collect_amount: int, collect_seq_no: int) -> str:
         hash_key: str = "7be2a16a82054ee58398c5edb7ac4a5a"
@@ -58,11 +61,15 @@ class Bums:
         response: Optional[httpx.Response] = await self._post(
             Endpoints.MINE_LIST_URL, {}
         )
-        return (
-            [Mine(**mine) for mine in response.json()["data"]["lists"]]
-            if response
-            else []
-        )
+        if response is None:
+            return []
+        lists = response.json().get("data", {}).get("lists", [])
+        if not lists:
+            logger.warning("Unable to get mine lists")
+            logger.error(response.json())
+            return []
+
+        return [Mine(**mine) for mine in lists] if response else []
 
     async def _get_eligible_minelist(self) -> List[Mine]:
         return [mine for mine in await self._get_minelist() if not mine.limitText]
@@ -79,7 +86,7 @@ class Bums:
             else []
         )
 
-    async def _get_signlists(self):
+    async def _get_signlists(self) -> Optional[dict]:
         response = await self._get(Endpoints.SIGN_LISTS_URL)
         return response.json() if response else None
 
@@ -90,11 +97,20 @@ class Bums:
         response: Optional[httpx.Response] = await self._post(
             Endpoints.LOGIN_URL, data={"refCode": Env.REF_ID, "initData": query}
         )
+        if not response:
+            logger.error("Unable to login")
+            logger.error(traceback.print_exc())
+            return False
+
+        token = response.json().get("data").get("token")
+        if not token:
+            logger.error("Unable to Login")
+            logger.error(traceback.print_exc())
+            logger.error(response.json())
+            return False
 
         if response and response.status_code == 200:
-            self.client.headers["Authorization"] = (
-                f"Bearer {response.json()['data']['token']}"
-            )
+            self.client.headers["Authorization"] = f"Bearer {token}"
             logger.success("Logged in successfully")
             return True
         return False
@@ -102,7 +118,7 @@ class Bums:
     async def get_userinfo(self) -> Optional[dict]:
         response: Optional[httpx.Response] = await self._get(Endpoints.GAME_INFO_URL)
         if response and response.status_code == 200:
-            return response.json()["data"] if response else None
+            return response.json().get("data") if response else None
 
     async def tap(self, userinfo: dict) -> None:
         energy: int = userinfo["gameInfo"]["energySurplus"]
@@ -115,7 +131,7 @@ class Bums:
                 "hashCode": self._generate_md5_hash(energy, collect_seq_no),
             },
         )
-        if resp and resp.json()["msg"] == "OK":
+        if resp and resp.json().get("msg") == "OK":
             logger.success("Tap successful")
         else:
             logger.error("Tap failed")
@@ -124,7 +140,11 @@ class Bums:
         response: Optional[httpx.Response] = await self._post(
             Endpoints.UPGRADE_URL, data={"mineId": mine.mineId}
         )
-        if response and response.status_code == 200 and response.json()["msg"] == "OK":
+        if (
+            response
+            and response.status_code == 200
+            and response.json().get("msg") == "OK"
+        ):
             logger.success(f"Upgraded mine {mine.mineId} successfully")
             return True
         return False
@@ -158,19 +178,25 @@ class Bums:
     async def daily_sign(self) -> bool:
         signlists = await self._get_signlists()
         if signlists:
-            if signlists["msg"] == "OK":
-                if signlists["data"]["signStatus"] != 0:
+            if signlists.get("msg") == "OK":
+                data = signlists.get("data", {})
+                if not data:
+                    logger.error(signlists)
+                    return False
+                if data.get("signStatus") != 0:
                     logger.info("Already claimed daily rewards")
                     return True
                 resp = await self._post(Endpoints.DAILY_SIGN_URL, {})
-                if resp and resp.json()["data"]["msg"] == "OK":
+                if resp and data.get("msg") == "OK":
                     logger.success("Received reward daily sign rewards")
                     return True
                 else:
                     logger.warning("Failed to claim daily reward")
+                    logger.error(signlists)
                     return False
             else:
                 logger.warning("Unable to claim daily reward")
+                logger.error(signlists)
         return False
 
     async def print_userinfo(self) -> None:

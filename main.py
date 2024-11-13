@@ -27,7 +27,7 @@ class BumsBot:
             logger.error(f"An unexpected error occurred: {e}")
             logger.error(traceback.format_exc())
 
-    async def daily_singin_task(self, bums: Bums) -> None:
+    async def daily_signin_task(self, bums: Bums) -> None:
         print()
         logger.info("===Daily Sign-in task started===")
         print()
@@ -76,7 +76,7 @@ class BumsBot:
                     return
 
                 await bums.print_userinfo()
-                await self.daily_singin_task(bums)
+                await self.daily_signin_task(bums)
                 await self.tap_task(bums, userinfo)
                 await self.process_upgrades_task(bums)
                 rest_period = TimeCalculator.MINUTE * sleep_delay
