@@ -39,7 +39,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ### 3. Sync Environment with `uv`
 
 ```bash
-uv sync --python 3.13
+uv sync
 ```
 
 ### 4. Run the Bot
@@ -81,9 +81,11 @@ To obtain the **API ID** and **API Hash** for Telegram, follow these steps:
 1. **Log in to Telegram**: Use the official [Telegram Web](https://web.telegram.org/) or app to log in to your account.
 
 2. **Access the Telegram Developer Portal**:
+
    - Go to [https://my.telegram.org](https://my.telegram.org) and sign in with your Telegram credentials.
 
 3. **Create a New Application**:
+
    - After logging in, click on **API Development Tools**.
    - Choose **Create new application** and fill in the required details, like the app name, platform (e.g., Desktop), and a short description.
 

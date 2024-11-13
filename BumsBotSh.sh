@@ -1,3 +1,3 @@
 #!/bin/bash
-uv sync --python 3.13
+uv sync
 uv run main.py
