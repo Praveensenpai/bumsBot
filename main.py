@@ -55,6 +55,7 @@ class BumsBot:
                 if not is_upgraded:
                     logger.info("No more money available to upgrade")
                     return
+                logger.info("Let's take 1 minute break and proceed to upgrade another")
                 await asyncio.sleep(60)
 
         except Exception as e:
