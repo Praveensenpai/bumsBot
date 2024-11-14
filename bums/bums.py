@@ -177,26 +177,35 @@ class Bums:
 
     async def daily_sign(self) -> bool:
         signlists = await self._get_signlists()
-        if signlists:
-            if signlists.get("msg") == "OK":
-                data = signlists.get("data", {})
-                if not data:
-                    logger.error(signlists)
-                    return False
-                if data.get("signStatus") != 0:
-                    logger.info("Already claimed daily rewards")
-                    return True
-                resp = await self._post(Endpoints.DAILY_SIGN_URL, {})
-                if resp and data.get("msg") == "OK":
-                    logger.success("Received reward daily sign rewards")
-                    return True
-                else:
-                    logger.warning("Failed to claim daily reward")
-                    logger.error(signlists)
-                    return False
-            else:
-                logger.warning("Unable to claim daily reward")
-                logger.error(signlists)
+        if not signlists or signlists.get("msg") != "OK":
+            logger.warning("Unable to claim daily reward")
+            logger.error(signlists)
+            return False
+
+        data = signlists.get("data", {})
+        if not data:
+            logger.error("No data in signlists response")
+            return False
+
+        if data.get("signStatus") != 0:
+            logger.info("Daily rewards already claimed")
+            return True
+
+        response = await self._post(Endpoints.DAILY_SIGN_URL, {})
+        if not response:
+            logger.warning("Failed to claim daily reward")
+            return False
+
+        response_data = response.json()
+        if response_data.get("msg") == "OK":
+            logger.success("Successfully claimed daily sign reward")
+            return True
+        elif response_data.get("msg") == "already sign":
+            logger.info("Daily rewards already claimed (duplicate attempt)")
+            return True
+
+        logger.warning("Failed to claim daily reward")
+        logger.error(response_data)
         return False
 
     async def print_userinfo(self) -> None:
