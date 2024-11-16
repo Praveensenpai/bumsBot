@@ -88,6 +88,8 @@ class BumsBot:
             except Exception as e:
                 logger.error(f"An unexpected error occurred: {e}")
                 logger.error(traceback.format_exc())
+                logger.info("Let's take a 10 minutes break.")
+                await asyncio.sleep(TimeCalculator.MINUTE * 10)
 
     def run(self):
         while True:
