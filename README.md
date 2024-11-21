@@ -6,7 +6,7 @@ BumsBot is an automated bot for daily sign-ins, tapping, and handling upgrades o
 
 - **Daily Sign-In**: Automatically checks in each day.
 - **Tap Task**: Runs tapping tasks using user information.
-- **Process Upgrades**: Continues upgrading as long as there are available funds.
+- **Process Upgrades**: Continues upgrading as long as there are available funds. Upgrade which is most profitable.
 - **Error Handling**: Logs errors and outputs status messages for easy tracking.
 
 ---
